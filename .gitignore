@@ -1,0 +1,7 @@
+.settings/
+debug/
+cmake-build-debug/
+.cproject
+.classpath
+.project
+CMakeUserPresets.json

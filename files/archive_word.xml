@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="19">
+<count>1</count>
+<item_version>0</item_version>
+<item class_id="0" tracking_level="0" version="0">
+	<first>word</first>
+	<second class_id="1" tracking_level="0" version="0">
+		<count>5</count>
+		<item_version>0</item_version>
+		<item>
+			<first>id</first>
+			<second>
+				<count>0</count>
+				<item_version>0</item_version>
+				<data>1</data>
+			</second>
+		</item>
+		<item>
+			<first>name</first>
+			<second>
+				<count>0</count>
+				<item_version>0</item_version>
+				<data>katze</data>
+			</second>
+		</item>
+		<item>
+			<first>index</first>
+			<second>
+				<count>0</count>
+				<item_version>0</item_version>
+				<data>1</data>
+			</second>
+		</item>
+		<item>
+			<first>type</first>
+			<second>
+				<count>0</count>
+				<item_version>0</item_version>
+				<data>1</data>
+			</second>
+		</item>
+		<item>
+			<first>image</first>
+			<second>
+				<count>3</count>
+				<item_version>0</item_version>
+				<item>
+					<first>url</first>
+					<second>
+						<count>0</count>
+						<item_version>0</item_version>
+						<data>http://example.org/w/api.php?title=katze</data>
+					</second>
+				</item>
+				<item>
+					<first>width</first>
+					<second>
+						<count>0</count>
+						<item_version>0</item_version>
+						<data>32</data>
+					</second>
+				</item>
+				<item>
+					<first>height</first>
+					<second>
+						<count>0</count>
+						<item_version>0</item_version>
+						<data>32</data>
+					</second>
+				</item>
+				<data></data>
+			</second>
+		</item>
+		<data></data>
+	</second>
+</item>
+<data></data>
+</boost_serialization>
+

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package lynx.pb;
+
+enum RemoteWordType {
+  NOUN = 0;
+  ADJECTIVE = 1;
+  VERB = 2;
+  ADVERB = 3;
+}
+
+message RemoteWordImage {
+  string url = 1;
+  int32 width = 2;
+  int32 height = 3;
+}
+
+message RemoteWord {
+  int32 id = 1;
+  string name = 2;
+  int32 index = 3;
+  RemoteWordType type = 4;
+  RemoteWordImage image = 5;
+}
