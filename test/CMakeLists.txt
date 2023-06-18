@@ -8,6 +8,8 @@ add_executable(lynx_test
 	format/JsonParserTest.cpp
 	format/ProtobufParserTest.cpp
 	format/XmlParserTest.cpp
+
+	net/SyncDictClientServerTest.cpp
 )
 
 target_include_directories(lynx_test

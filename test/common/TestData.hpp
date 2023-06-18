@@ -43,10 +43,10 @@ namespace lynx {
    };
 
    static const Word WORD_TEST2 = {
-	   .id = 1,
+	   .id = 2,
 	   .name = "hunt",
 	   .index = 2,
-	   .type = WordType::NOUN,
+	   .type = WordType::ADJECTIVE,
 	   .image = {
 		   .url = boost::urls::url(URL_TEST + std::string("hunt")),
 		   .width = 32,

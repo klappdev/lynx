@@ -22,36 +22,20 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "net/NetworkUtils.hpp"
 
-#include "common/Word.hpp"
-
-#include <boost/system/result.hpp>
-#include <vector>
-//#include <boost/mysql.hpp>
+#include <sstream>
 
 namespace lynx {
 
-	class SyncDictDao final {
-	public:
-		SyncDictDao(const std::string& host);
-		~SyncDictDao();
+	std::string toString(boost::asio::streambuf& buffer) {
+		std::ostringstream out;
+		out << &buffer;
+		return out.str();
+	}
 
-		void start();
-		void stop();
-
-		auto insert(const Word& word) -> boost::system::result<void>;
-		auto update(const Word& word) -> boost::system::result<void>;
-		auto remove(uint64_t id) -> boost::system::result<void>;
-
-		auto getById(uint64_t id) -> boost::system::result<Word>;
-		auto getAll() -> boost::system::result<std::vector<Word>>;
-
-	private:
-		std::string mHost;
-
-		//FIXME: change to boost::mysql
-		std::vector<Word> mWords;
-		bool mStarted;
-	};
+	std::string toStringFast(boost::asio::streambuf& buffer) {
+		std::string result = boost::asio::buffer_cast<const char*>(buffer.data());
+		return result;
+	}
 }

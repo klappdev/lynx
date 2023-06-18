@@ -31,6 +31,8 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
 
+#include <iostream> //TMP
+
 static constexpr int32_t ARCHIVE_VERSION = 1;
 
 namespace lynx {
@@ -38,11 +40,11 @@ namespace lynx {
 	auto XmlParser::serializeToText(const Word& word) -> boost::system::result<std::string> {
 		std::ostringstream stream;
 
-		mTree.clear();
+		mWordTree.clear();
 		saveToTree(word);
 
 		try {
-			boost::property_tree::write_xml(stream, mTree);
+			boost::property_tree::write_xml(stream, mWordTree);
 		} catch (const boost::property_tree::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
@@ -53,10 +55,10 @@ namespace lynx {
 	auto XmlParser::deserializeFromText(const std::string& text) -> boost::system::result<Word> {
 		std::istringstream stream(text);
 
-		mTree.clear();
+		mWordTree.clear();
 
 		try {
-			boost::property_tree::read_xml(stream, mTree);
+			boost::property_tree::read_xml(stream, mWordTree);
 		} catch (const boost::property_tree::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
@@ -65,21 +67,44 @@ namespace lynx {
 	}
 
 	auto XmlParser::serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string> {
-		//FIXME: implement in future
-		return {};
+		std::ostringstream stream;
+
+		mWordTree.clear();
+		mWordsTree.clear();
+
+		saveWordsToTree(words);
+
+		try {
+			boost::property_tree::write_xml(stream, mWordsTree);
+		} catch (const boost::property_tree::xml_parser_error& e) {
+			return std::make_error_code(std::errc::io_error);
+		}
+
+		return stream.str();
 	}
 
 	auto XmlParser::deserializeWordsFromText(const std::string& text) -> boost::system::result<std::vector<Word>> {
-		//FIXME: implement in future
-		return {};
+		std::istringstream stream(text);
+
+		mWordTree.clear();
+		mWordsTree.clear();
+
+		try {
+			boost::property_tree::read_xml(stream, mWordsTree);
+		} catch (const boost::property_tree::xml_parser_error& e) {
+			return std::make_error_code(std::errc::io_error);
+		}
+
+		return loadWordsFromTree();
 	}
 
 	auto XmlParser::serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void> {
-		mTree.clear();
+		mWordTree.clear();
+
 		saveToTree(word);
 
 		try {
-			boost::property_tree::write_xml(fileName, mTree);
+			boost::property_tree::write_xml(fileName, mWordTree);
 		} catch (const boost::property_tree::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
@@ -88,10 +113,10 @@ namespace lynx {
 	}
 
 	auto XmlParser::deserializeFromFile(const std::string& fileName) -> boost::system::result<Word> {
-		mTree.clear();
+		mWordTree.clear();
 
 		try {
-			boost::property_tree::read_xml(fileName, mTree);
+			boost::property_tree::read_xml(fileName, mWordTree);
 		} catch (const boost::property_tree::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
@@ -100,7 +125,7 @@ namespace lynx {
 	}
 
 	auto XmlParser::serializeToArchive(const std::string& fileName, const Word& word) -> boost::system::result<void> {
-		mTree.clear();
+		mWordTree.clear();
 
 		std::ofstream ofs(fileName, std::ios_base::out);
 
@@ -112,13 +137,13 @@ namespace lynx {
 
 		saveToTree(word);
 
-		boost::property_tree::save(archive, mTree, ARCHIVE_VERSION);
+		boost::property_tree::save(archive, mWordTree, ARCHIVE_VERSION);
 
 		return {};
 	}
 
 	auto XmlParser::deserializeFromArchive(const std::string& fileName) -> boost::system::result<Word> {
-		mTree.clear();
+		mWordTree.clear();
 
 		std::ifstream ifs(fileName, std::ios_base::in);
 
@@ -128,42 +153,68 @@ namespace lynx {
 
 		boost::archive::xml_iarchive archive(ifs);
 
-		boost::property_tree::load(archive, mTree, ARCHIVE_VERSION);
+		boost::property_tree::load(archive, mWordTree, ARCHIVE_VERSION);
 
 		return loadFromTree();
 	}
 
 	void XmlParser::saveToTree(const Word& word) {
-		mTree.put("word.id", word.id);
-		mTree.put("word.name", word.name);
-		mTree.put("word.index", word.index);
-		mTree.put("word.type", static_cast<std::underlying_type_t<WordType>>(word.type));
-		mTree.put("word.image.url", word.image.url);
-		mTree.put("word.image.width", word.image.width);
-		mTree.put("word.image.height", word.image.height);
+		mWordTree.put("word.id", word.id);
+		mWordTree.put("word.name", word.name);
+		mWordTree.put("word.index", word.index);
+		mWordTree.put("word.type", static_cast<std::underlying_type_t<WordType>>(word.type));
+		mWordTree.put("word.image.url", word.image.url);
+		mWordTree.put("word.image.width", word.image.width);
+		mWordTree.put("word.image.height", word.image.height);
 	}
 
 	auto XmlParser::loadFromTree() -> Word {
 		return Word {
-			.id = mTree.get<int32_t>("word.id", 0),
-			.name = mTree.get<std::string>("word.name", "<no_name>"),
-			.index = mTree.get<int32_t>("word.index", 0),
-			.type = static_cast<WordType>(mTree.get<std::underlying_type_t<WordType>>("word.type", 1)),
+			.id = mWordTree.get<int32_t>("word.id", 0),
+			.name = mWordTree.get<std::string>("word.name", "<no_name>"),
+			.index = mWordTree.get<int32_t>("word.index", 0),
+			.type = static_cast<WordType>(mWordTree.get<std::underlying_type_t<WordType>>("word.type", 1)),
 			.image = WordImage {
-				.url = mTree.get<boost::urls::url>("word.image.url", boost::urls::url("http://unknown.org")),
-				.width = mTree.get<int32_t>("word.image.width", 0),
-				.height = mTree.get<int32_t>("word.image.height", 0)
+				.url = mWordTree.get<boost::urls::url>("word.image.url", boost::urls::url("http://unknown.org")),
+				.width = mWordTree.get<int32_t>("word.image.width", 0),
+				.height = mWordTree.get<int32_t>("word.image.height", 0)
 			}
 		};
 	}
 
-	void XmlParser::saveWordsToTree(const std::vector<Word>& word) {
-		//FIXME: implement in future
+	auto XmlParser::loadFromTree(const boost::property_tree::ptree& tree) -> Word {
+		return Word {
+			.id = tree.get<int32_t>("id", 0),
+			.name = tree.get<std::string>("name", "<no_name>"),
+			.index = tree.get<int32_t>("index", 0),
+			.type = static_cast<WordType>(tree.get<std::underlying_type_t<WordType>>("type", 1)),
+			.image = WordImage {
+				.url = tree.get<boost::urls::url>("image.url", boost::urls::url("http://unknown.org")),
+				.width = tree.get<int32_t>("image.width", 0),
+				.height = tree.get<int32_t>("image.height", 0)
+			}
+		};
+	}
+
+	void XmlParser::saveWordsToTree(const std::vector<Word>& words) {
+		for (const Word& word : words) {
+			saveToTree(word);
+			mWordsTree.add_child("words.word", mWordTree.get_child("word"));
+			mWordTree.clear();
+		}
 	}
 
 	auto XmlParser::loadWordsFromTree() -> std::vector<Word> {
-		//FIXME: implement in future
-		return {};
+		std::vector<Word> result;
+
+		auto tmpTree = mWordsTree.get_child("words");
+
+		for (const boost::property_tree::ptree::value_type& wordTree : tmpTree) {
+			/*boost::property_tree::write_xml(std::cout, wordTree.second);*/
+			result.push_back(loadFromTree(wordTree.second));
+		}
+
+		return result;
 	}
 }
 

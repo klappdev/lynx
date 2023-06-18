@@ -24,12 +24,40 @@
 
 #pragma once
 
+#include <boost/asio/ip/tcp.hpp>
+
+#include "db/SyncDictDao.hpp"
+#include "format/XmlParser.hpp"
+
 namespace lynx {
 
 	class SyncDictServer final {
 	public:
+		SyncDictServer(const std::string& host, uint64_t port);
+		~SyncDictServer();
+
+		[[nodiscard]] bool isStarted() const;
+
+		void start();
+		void stop();
 
 	private:
+		void processMessages();
 
+		void processInsert(const std::string& message);
+		void processUpdate(const std::string& message);
+		void processDelete(const std::string& message);
+		void processGetById(const std::string& message);
+		void processGetAll(const std::string& message);
+
+	private:
+		boost::asio::io_context mContext;
+		boost::asio::ip::tcp::socket mSocket;
+		boost::asio::ip::tcp::endpoint mEndpoint;
+		boost::asio::ip::tcp::acceptor mAcceptor;
+
+		SyncDictDao dictDao;
+		XmlParser mParser;
+		bool mStarted;
 	};
 }

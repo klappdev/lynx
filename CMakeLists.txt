@@ -31,6 +31,8 @@ set(HEADERS
 	
 	include/logging/Logging.hpp
 	
+	include/net/DictCommand.hpp
+	include/net/NetworkUtils.hpp
 	include/net/SyncDictClient.hpp
 	include/net/SyncDictServer.hpp
 
@@ -46,6 +48,7 @@ set(SOURCES
 
 	src/logging/Logging.cpp
 	
+	src/net/NetworkUtils.cpp
 	src/net/SyncDictClient.cpp
 	src/net/SyncDictServer.cpp
 

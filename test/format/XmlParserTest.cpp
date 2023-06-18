@@ -108,19 +108,42 @@ namespace lynx {
 
 	TEST_F(XmlParserTest, serializeWordsToTextTest)
 	{
-		boost::system::result<std::string> result = mParser.serializeWordsToText({WORD_TEST1, WORD_TEST2});
+		boost::system::result<std::string> result = mParser.serializeWordsToText({ WORD_TEST1, WORD_TEST2 });
 
 		if (result.has_error()) {
 			log::error(TAG, "Serialize error: %s", result.error().message().c_str());
 			EXPECT_TRUE(false);
 		}
 
-		//FIXME: finish in future
+		EXPECT_FALSE(result->empty());
+		EXPECT_TRUE(result->find("<id>") != std::string::npos);
+		EXPECT_TRUE(result->find("<name>") != std::string::npos);
+		EXPECT_TRUE(result->find("<index>") != std::string::npos);
+		EXPECT_TRUE(result->find("<type>") != std::string::npos);
+		EXPECT_TRUE(result->find("<image>") != std::string::npos);
 	}
 
 	TEST_F(XmlParserTest, deserializeWordsFromTextTest)
 	{
-		//FIXME: implement in future
+		const std::string WORDS_XML_TEST = std::string("<words>").append(WORD_XML_TEST1).append(WORD_XML_TEST2).append("</words>");
+		const Word WORDS_TEST[] = { WORD_TEST1, WORD_TEST2 };
+
+		auto result = mParser.deserializeWordsFromText(WORDS_XML_TEST);
+
+		if (result.has_error()) {
+			log::error(TAG, "Deserialize error: %s", result.error().message().c_str());
+			EXPECT_TRUE(false);
+		}
+
+		for (size_t i = 0; i < std::size(WORDS_TEST); ++i) {
+			EXPECT_EQ(result.value()[i].id, WORDS_TEST[i].id);
+			EXPECT_EQ(result.value()[i].name, WORDS_TEST[i].name);
+			EXPECT_EQ(result.value()[i].index, WORDS_TEST[i].index);
+			EXPECT_EQ(result.value()[i].type, WORDS_TEST[i].type);
+			EXPECT_EQ(result.value()[i].image.url, WORDS_TEST[i].image.url);
+			EXPECT_EQ(result.value()[i].image.width, WORDS_TEST[i].image.width);
+			EXPECT_EQ(result.value()[i].image.height, WORDS_TEST[i].image.height);
+		}
 	}
 
 	TEST_F(XmlParserTest, serializeWordToFileTest)

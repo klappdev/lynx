@@ -158,7 +158,4 @@ namespace lynx {
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
 	}
-
-
-
 }

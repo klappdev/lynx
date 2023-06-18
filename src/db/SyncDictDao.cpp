@@ -26,13 +26,16 @@
 #include "logging/Logging.hpp"
 
 static constexpr const char* const TAG = "SyncDictDao";
+static constexpr const char* const DATABASE_NAME = "dictionary";
+static constexpr const char* const TABLE_NAME = "word";
+static constexpr const char* const USER_NAME = "user";
+static constexpr const char* const PASSWORD = "pass";
 
 namespace lynx {
 
-	SyncDictDao::SyncDictDao(const std::string& host, const std::string& userName, const std::string& password)
+	SyncDictDao::SyncDictDao(const std::string& host)
 		: mHost(host)
-        , mUserName(userName)
-		, mPassword(password) {
+        , mStarted(false) {
 		log::info(TAG, "Create dict dao");
 	}
 

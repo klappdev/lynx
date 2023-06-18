@@ -24,12 +24,36 @@
 
 #pragma once
 
+#include <boost/asio/ip/tcp.hpp>
+
+#include "format/XmlParser.hpp"
+
 namespace lynx {
 
 	class SyncDictClient final {
 	public:
+		SyncDictClient(const std::string& host, uint64_t port);
+		~SyncDictClient();
+
+		[[nodiscard]] bool isStarted() const;
+
+		void start();
+		void stop();
+
+		void performQuit();
+		void performInsert(const Word& word);
+		void performUpdate(const Word& word);
+		void performDelete(uint64_t id);
+
+		[[nodiscard]] auto performGetById(uint64_t id) -> Word;
+		[[nodiscard]] auto performGetAll() -> std::vector<Word>;
 
 	private:
+		boost::asio::io_context mContext;
+		boost::asio::ip::tcp::socket mSocket;
+		boost::asio::ip::tcp::endpoint mEndpoint;
 
+		XmlParser mParser;
+		bool mStarted;
 	};
 }
