@@ -50,6 +50,7 @@ namespace lynx {
 			<index>1</index>
 			<type>1</type>
 			<image>
+				<id>1</id>
 				<url>http://example.org/w/api.php?title=katze</url>
 				<width>32</width>
 				<height>32</height>
@@ -64,9 +65,10 @@ namespace lynx {
 			<index>2</index>
 			<type>2</type>
 			<image>
+				<id>2</id>
 				<url>http://example.org/w/api.php?title=hunt</url>
-				<width>32</width>
-				<height>32</height>
+				<width>48</width>
+				<height>48</height>
 			</image>
 		</word>
 	)xxx";
@@ -101,6 +103,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
@@ -140,6 +143,7 @@ namespace lynx {
 			EXPECT_EQ(result.value()[i].name, WORDS_TEST[i].name);
 			EXPECT_EQ(result.value()[i].index, WORDS_TEST[i].index);
 			EXPECT_EQ(result.value()[i].type, WORDS_TEST[i].type);
+			EXPECT_EQ(result.value()[i].image.id, WORDS_TEST[i].image.id);
 			EXPECT_EQ(result.value()[i].image.url, WORDS_TEST[i].image.url);
 			EXPECT_EQ(result.value()[i].image.width, WORDS_TEST[i].image.width);
 			EXPECT_EQ(result.value()[i].image.height, WORDS_TEST[i].image.height);
@@ -171,6 +175,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
@@ -201,6 +206,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);

@@ -37,11 +37,18 @@ static constexpr uint16_t PORT_TEST = 8001;
 
 namespace lynx {
 
+	TEST(SyncDictClientServerTest, truncateTableTest)
+	{
+		SyncDictDao dao(HOST_TEST);
+		dao.start();
+		dao.truncateTables();
+		dao.stop();
+	}
+
 	TEST(SyncDictClientServerTest, remoteInsertWordTest)
 	{
 		std::thread serverThread([](){
 			SyncDictServer server(HOST_TEST, PORT_TEST);
-
 			server.start();
 			server.stop();
 		});
@@ -63,19 +70,17 @@ namespace lynx {
 	{
 		std::thread serverThread([](){
 			SyncDictServer server(HOST_TEST, PORT_TEST);
-
 			server.start();
 			server.stop();
 		});
 
 		std::thread clientThread([](){
 			SyncDictClient client(HOST_TEST, PORT_TEST);
-
 			client.start();
-			client.performInsert(WORD_TEST1);
 
 			auto copyWord = WORD_TEST2;
 			copyWord.id = WORD_TEST1.id;
+			copyWord.image.id = WORD_TEST1.image.id;
 			client.performUpdate(copyWord);
 
 			client.performQuit();
@@ -90,18 +95,14 @@ namespace lynx {
 	{
 		std::thread serverThread([](){
 			SyncDictServer server(HOST_TEST, PORT_TEST);
-
 			server.start();
 			server.stop();
 		});
 
 		std::thread clientThread([](){
 			SyncDictClient client(HOST_TEST, PORT_TEST);
-
 			client.start();
-			client.performInsert(WORD_TEST1);
 			client.performDelete(WORD_TEST1.id);
-
 			client.performQuit();
 			client.stop();
 		});
@@ -114,7 +115,6 @@ namespace lynx {
 	{
 		std::thread serverThread([](){
 			SyncDictServer server(HOST_TEST, PORT_TEST);
-
 			server.start();
 			server.stop();
 		});
@@ -124,9 +124,8 @@ namespace lynx {
 
 			client.start();
 			client.performInsert(WORD_TEST1);
-			Word result = client.performGetById(WORD_TEST1.id);
+			Word result = client.performGetById(WORD_TEST2.id);
 
-			EXPECT_EQ(result.id, WORD_TEST1.id);
 			EXPECT_EQ(result.name, WORD_TEST1.name);
 			EXPECT_EQ(result.index, WORD_TEST1.index);
 			EXPECT_EQ(result.type, WORD_TEST1.type);
@@ -146,7 +145,6 @@ namespace lynx {
 	{
 		std::thread serverThread([](){
 			SyncDictServer server(HOST_TEST, PORT_TEST);
-
 			server.start();
 			server.stop();
 		});
@@ -156,18 +154,16 @@ namespace lynx {
 			const Word WORDS_TEST[] = { WORD_TEST1, WORD_TEST2 };
 
 			client.start();
-			client.performInsert(WORD_TEST1);
 			client.performInsert(WORD_TEST2);
-			std::vector<Word> results = client.performGetAll();
+			std::vector<Word> result = client.performGetAll();
 
 			for (size_t i = 0; i < std::size(WORDS_TEST); ++i) {
-				EXPECT_EQ(results[i].id, WORDS_TEST[i].id);
-				EXPECT_EQ(results[i].name, WORDS_TEST[i].name);
-				EXPECT_EQ(results[i].index, WORDS_TEST[i].index);
-				EXPECT_EQ(results[i].type, WORDS_TEST[i].type);
-				EXPECT_EQ(results[i].image.url, WORDS_TEST[i].image.url);
-				EXPECT_EQ(results[i].image.width, WORDS_TEST[i].image.width);
-				EXPECT_EQ(results[i].image.height, WORDS_TEST[i].image.height);
+				EXPECT_EQ(result[i].name, WORDS_TEST[i].name);
+				EXPECT_EQ(result[i].index, WORDS_TEST[i].index);
+				EXPECT_EQ(result[i].type, WORDS_TEST[i].type);
+				EXPECT_EQ(result[i].image.url, WORDS_TEST[i].image.url);
+				EXPECT_EQ(result[i].image.width, WORDS_TEST[i].image.width);
+				EXPECT_EQ(result[i].image.height, WORDS_TEST[i].image.height);
 			}
 
 			client.performQuit();

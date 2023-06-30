@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "common/Word.hpp"
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/context.hpp>
+#include <boost/mysql.hpp>
 
-#include <boost/system/result.hpp>
-#include <vector>
-//#include <boost/mysql.hpp>
+#include "common/Word.hpp"
 
 namespace lynx {
 
@@ -36,6 +36,8 @@ namespace lynx {
 	public:
 		SyncDictDao(const std::string& host);
 		~SyncDictDao();
+
+		[[nodiscard]] bool isStarted() const;
 
 		void start();
 		void stop();
@@ -47,11 +49,21 @@ namespace lynx {
 		auto getById(uint64_t id) -> boost::system::result<Word>;
 		auto getAll() -> boost::system::result<std::vector<Word>>;
 
-	private:
-		std::string mHost;
+		[[nodiscard]] auto getLastWordId() const -> uint64_t;
+		[[nodiscard]] auto getLastWordImageId() const -> uint64_t;
 
-		//FIXME: change to boost::mysql
-		std::vector<Word> mWords;
+		void truncateTables();
+
+	private:
+		void createTables();
+		auto load(const boost::mysql::row& row) -> boost::system::result<Word, std::string>;
+
+		std::string mHost;
+		boost::asio::io_context mContext;
+		std::unique_ptr<boost::mysql::tcp_ssl_connection> mConnection;
+
+		uint64_t mLastWordId;
+		uint64_t mLastWordImageId;
 		bool mStarted;
 	};
 }

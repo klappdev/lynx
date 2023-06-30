@@ -43,8 +43,16 @@
 		<item>
 			<first>image</first>
 			<second>
-				<count>3</count>
+				<count>4</count>
 				<item_version>0</item_version>
+				<item>
+					<first>id</first>
+					<second>
+						<count>0</count>
+						<item_version>0</item_version>
+						<data>1</data>
+					</second>
+				</item>
 				<item>
 					<first>url</first>
 					<second>

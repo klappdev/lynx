@@ -36,6 +36,7 @@ namespace lynx {
         .index = 1,
         .type = WordType::NOUN,
         .image = {
+			.id = 1,
             .url = boost::urls::url(URL_TEST + std::string("katze")),
             .width = 32,
             .height = 32	
@@ -48,9 +49,10 @@ namespace lynx {
 	   .index = 2,
 	   .type = WordType::ADJECTIVE,
 	   .image = {
+		   .id = 2,
 		   .url = boost::urls::url(URL_TEST + std::string("hunt")),
-		   .width = 32,
-		   .height = 32
+		   .width = 48,
+		   .height = 48
 	   }
   };
 }

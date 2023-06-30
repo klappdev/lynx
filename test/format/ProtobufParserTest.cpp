@@ -87,6 +87,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
@@ -121,6 +122,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
@@ -154,6 +156,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);

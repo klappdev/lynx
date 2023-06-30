@@ -249,7 +249,7 @@ namespace lynx {
 	}
 
 	void SyncDictServer::processGetAll(const std::string& message) {
-		log::debug(TAG, "Process %s message", GET_BY_ID_COMMAND);
+		log::debug(TAG, "Process %s message", GET_ALL_COMMAND);
 
 		boost::system::result<std::vector<Word>> localWords = dictDao.getAll();
 

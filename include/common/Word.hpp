@@ -35,9 +35,9 @@
 namespace lynx {
 
     struct Word final {
-		int32_t id;
+		uint64_t id;
 		std::string name;
-		int32_t index;
+		uint64_t index;
 		WordType type;
 		WordImage image;
     };

@@ -51,6 +51,7 @@ namespace lynx {
  	         "index": 1,
  	         "type": 1,
  	         "image": {
+				 "id": 1,
  		         "url": "http://example.org/w/api.php?title=katze",
  	             "width": 32,
  	             "height": 32
@@ -61,7 +62,7 @@ namespace lynx {
     R"xxx(
  	    [
  	         1, "katze", 1, 1, 
-             ["http://example.org/w/api.php?title=katze", 32, 32]
+             [1, "http://example.org/w/api.php?title=katze", 32, 32]
  	    ]
     )xxx";
 #endif
@@ -99,6 +100,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);
@@ -129,6 +131,7 @@ namespace lynx {
 		EXPECT_EQ(result->name, WORD_TEST1.name);
 		EXPECT_EQ(result->index, WORD_TEST1.index);
 		EXPECT_EQ(result->type, WORD_TEST1.type);
+		EXPECT_EQ(result->image.id, WORD_TEST1.image.id);
 		EXPECT_EQ(result->image.url, WORD_TEST1.image.url);
 		EXPECT_EQ(result->image.width, WORD_TEST1.image.width);
 		EXPECT_EQ(result->image.height, WORD_TEST1.image.height);

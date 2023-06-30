@@ -31,8 +31,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
 
-#include <iostream> //TMP
-
 static constexpr int32_t ARCHIVE_VERSION = 1;
 
 namespace lynx {
@@ -163,6 +161,7 @@ namespace lynx {
 		mWordTree.put("word.name", word.name);
 		mWordTree.put("word.index", word.index);
 		mWordTree.put("word.type", static_cast<std::underlying_type_t<WordType>>(word.type));
+		mWordTree.put("word.image.id", word.image.id),
 		mWordTree.put("word.image.url", word.image.url);
 		mWordTree.put("word.image.width", word.image.width);
 		mWordTree.put("word.image.height", word.image.height);
@@ -170,11 +169,12 @@ namespace lynx {
 
 	auto XmlParser::loadFromTree() -> Word {
 		return Word {
-			.id = mWordTree.get<int32_t>("word.id", 0),
+			.id = mWordTree.get<uint64_t>("word.id", 0),
 			.name = mWordTree.get<std::string>("word.name", "<no_name>"),
-			.index = mWordTree.get<int32_t>("word.index", 0),
+			.index = mWordTree.get<uint64_t>("word.index", 0),
 			.type = static_cast<WordType>(mWordTree.get<std::underlying_type_t<WordType>>("word.type", 1)),
 			.image = WordImage {
+				.id = mWordTree.get<uint64_t>("word.image.id", 0),
 				.url = mWordTree.get<boost::urls::url>("word.image.url", boost::urls::url("http://unknown.org")),
 				.width = mWordTree.get<int32_t>("word.image.width", 0),
 				.height = mWordTree.get<int32_t>("word.image.height", 0)
@@ -184,11 +184,12 @@ namespace lynx {
 
 	auto XmlParser::loadFromTree(const boost::property_tree::ptree& tree) -> Word {
 		return Word {
-			.id = tree.get<int32_t>("id", 0),
+			.id = tree.get<uint64_t>("id", 0),
 			.name = tree.get<std::string>("name", "<no_name>"),
-			.index = tree.get<int32_t>("index", 0),
+			.index = tree.get<uint64_t>("index", 0),
 			.type = static_cast<WordType>(tree.get<std::underlying_type_t<WordType>>("type", 1)),
 			.image = WordImage {
+				.id = tree.get<uint64_t>("image.id", 0),
 				.url = tree.get<boost::urls::url>("image.url", boost::urls::url("http://unknown.org")),
 				.width = tree.get<int32_t>("image.width", 0),
 				.height = tree.get<int32_t>("image.height", 0)

@@ -30,6 +30,7 @@
 namespace lynx {
     
     struct WordImage final {
+    	uint64_t id;
         boost::urls::url url;
         int32_t width;
         int32_t height;

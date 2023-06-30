@@ -13,6 +13,8 @@ include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 include(${CMAKE_BINARY_DIR}/protobuf-config.cmake)
 
 find_package(Boost REQUIRED)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(Protobuf REQUIRED)
 
 set(HEADERS
@@ -74,6 +76,10 @@ target_include_directories(lynx PUBLIC
 target_link_libraries(lynx
 	PRIVATE
 	boost::boost
+	Boost::headers
+	Threads::Threads
+	OpenSSL::Crypto
+	OpenSSL::SSL
 	protobuf::protobuf
 )
 

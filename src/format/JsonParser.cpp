@@ -114,6 +114,7 @@ namespace lynx {
 #elif LYNX_USE_CUSTOMISE
     void tag_invoke(boost::json::value_from_tag const&, boost::json::value& jsonValue, const WordImage& wordImage) {
 	    jsonValue = {
+			{ "id", wordImage.id },
 	        { "url", boost::json::value_from(wordImage.url) },
 	        { "width", wordImage.width },
 	        { "height", wordImage.height }
@@ -134,6 +135,7 @@ namespace lynx {
 	    const boost::json::object& object = jsonValue.as_object();
 
 	    return WordImage {
+	    	boost::json::value_to<uint64_t>(object.at("id")),
 	        boost::json::value_to<boost::urls::url>(object.at("url")),
 	        boost::json::value_to<int32_t>(object.at("width")),
 	        boost::json::value_to<int32_t>(object.at("height"))
@@ -144,9 +146,9 @@ namespace lynx {
 	    const boost::json::object& object = jsonValue.as_object();
 
 	    return Word {
-	        boost::json::value_to<int32_t>(object.at("id")),
+	        boost::json::value_to<uint64_t>(object.at("id")),
 	        boost::json::value_to<std::string>(object.at("name")),
-	        boost::json::value_to<int32_t>(object.at("index")),
+	        boost::json::value_to<uint64_t>(object.at("index")),
 	        boost::json::value_to<WordType>(object.at("type")),
 	        boost::json::value_to<WordImage>(object.at("image"))
 	    };

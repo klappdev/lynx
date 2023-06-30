@@ -5,6 +5,8 @@ include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 find_package(GTest REQUIRED)
 
 add_executable(lynx_test
+	db/SyncDictDaoTest.cpp
+
 	format/JsonParserTest.cpp
 	format/ProtobufParserTest.cpp
 	format/XmlParserTest.cpp

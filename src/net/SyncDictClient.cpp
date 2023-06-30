@@ -112,7 +112,7 @@ namespace lynx {
 		std::string remoteData = toString(remoteBuffer);
 
 		if (!errorCode && remoteData.starts_with(INSERT_COMMAND)) {
-			log::info(TAG, "Receive message: %s", remoteData.c_str());
+			log::debug(TAG, "Receive message: %s", remoteData.c_str());
 		} else {
 			log::error(TAG, "Receive message isn't correct: %s", errorCode.message().c_str());
 		}
@@ -142,7 +142,7 @@ namespace lynx {
 		std::string remoteData = toString(remoteBuffer);
 
 		if (!errorCode && remoteData.starts_with(UPDATE_COMMAND)) {
-			log::info(TAG, "Receive message: %s", remoteData.c_str());
+			log::debug(TAG, "Receive message: %s", remoteData.c_str());
 		} else {
 			log::error(TAG, "Receive message isn't correct: %s", errorCode.message().c_str());
 		}
@@ -165,7 +165,7 @@ namespace lynx {
 		std::string remoteData = toString(remoteBuffer);
 
 		if (!errorCode && remoteData.starts_with(DELETE_COMMAND)) {
-			log::info(TAG, "Receive message: %s", remoteData.c_str());
+			log::debug(TAG, "Receive message: %s", remoteData.c_str());
 		} else {
 			log::error(TAG, "Receive message isn't correct: %s", errorCode.message().c_str());
 		}
@@ -188,7 +188,7 @@ namespace lynx {
 		std::string remoteData = toString(remoteBuffer);
 
 		if (!errorCode && remoteData.starts_with(GET_BY_ID_COMMAND)) {
-			log::info(TAG, "Receive message: %s", remoteData.c_str());
+			log::debug(TAG, "Receive message: %s", remoteData.c_str());
 		} else {
 			log::error(TAG, "Receive message isn't correct: %s", errorCode.message().c_str());
 		}
@@ -221,7 +221,7 @@ namespace lynx {
 		std::string remoteData = toString(remoteBuffer);
 
 		if (!errorCode && remoteData.starts_with(GET_ALL_COMMAND)) {
-			log::info(TAG, "Receive message: %s", remoteData.c_str());
+			log::debug(TAG, "Receive message: %s", remoteData.c_str());
 		} else {
 			log::error(TAG, "Receive message isn't correct: %s", errorCode.message().c_str());
 		}

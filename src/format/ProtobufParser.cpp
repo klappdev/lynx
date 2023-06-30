@@ -127,6 +127,7 @@ namespace lynx {
 	auto ProtobufParser::convert(const WordImage& wordImage) -> pb::RemoteWordImage {
 		pb::RemoteWordImage remoteImage;
 
+		remoteImage.set_id(wordImage.id);
 		remoteImage.set_url(wordImage.url.c_str());
 		remoteImage.set_width(wordImage.width);
 		remoteImage.set_height(wordImage.height);
@@ -171,6 +172,7 @@ namespace lynx {
 		}
 
 		return WordImage {
+			.id = remoteWordImage.id(),
 			.url = url,
 			.width = remoteWordImage.width(),
 			.height = remoteWordImage.height()
