@@ -29,6 +29,8 @@
 #include "db/SyncDictDao.hpp"
 #include "format/XmlParser.hpp"
 
+namespace net = boost::asio;
+
 namespace lynx {
 
 	class SyncDictServer final {
@@ -51,10 +53,10 @@ namespace lynx {
 		void processGetAll(const std::string& message);
 
 	private:
-		boost::asio::io_context mContext;
-		boost::asio::ip::tcp::socket mSocket;
-		boost::asio::ip::tcp::endpoint mEndpoint;
-		boost::asio::ip::tcp::acceptor mAcceptor;
+		net::io_context mContext;
+		net::ip::tcp::socket mSocket;
+		net::ip::tcp::endpoint mEndpoint;
+		net::ip::tcp::acceptor mAcceptor;
 
 		SyncDictDao dictDao;
 		XmlParser mParser;

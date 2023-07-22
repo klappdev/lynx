@@ -42,8 +42,8 @@ namespace lynx {
 		saveToTree(word);
 
 		try {
-			boost::property_tree::write_xml(stream, mWordTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::write_xml(stream, mWordTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -56,8 +56,8 @@ namespace lynx {
 		mWordTree.clear();
 
 		try {
-			boost::property_tree::read_xml(stream, mWordTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::read_xml(stream, mWordTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -73,8 +73,8 @@ namespace lynx {
 		saveWordsToTree(words);
 
 		try {
-			boost::property_tree::write_xml(stream, mWordsTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::write_xml(stream, mWordsTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -88,8 +88,8 @@ namespace lynx {
 		mWordsTree.clear();
 
 		try {
-			boost::property_tree::read_xml(stream, mWordsTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::read_xml(stream, mWordsTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -102,8 +102,8 @@ namespace lynx {
 		saveToTree(word);
 
 		try {
-			boost::property_tree::write_xml(fileName, mWordTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::write_xml(fileName, mWordTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -114,8 +114,8 @@ namespace lynx {
 		mWordTree.clear();
 
 		try {
-			boost::property_tree::read_xml(fileName, mWordTree);
-		} catch (const boost::property_tree::xml_parser_error& e) {
+			xml::read_xml(fileName, mWordTree);
+		} catch (const xml::xml_parser_error& e) {
 			return std::make_error_code(std::errc::io_error);
 		}
 
@@ -135,7 +135,7 @@ namespace lynx {
 
 		saveToTree(word);
 
-		boost::property_tree::save(archive, mWordTree, ARCHIVE_VERSION);
+		xml::save(archive, mWordTree, ARCHIVE_VERSION);
 
 		return {};
 	}
@@ -151,7 +151,7 @@ namespace lynx {
 
 		boost::archive::xml_iarchive archive(ifs);
 
-		boost::property_tree::load(archive, mWordTree, ARCHIVE_VERSION);
+		xml::load(archive, mWordTree, ARCHIVE_VERSION);
 
 		return loadFromTree();
 	}
@@ -182,7 +182,7 @@ namespace lynx {
 		};
 	}
 
-	auto XmlParser::loadFromTree(const boost::property_tree::ptree& tree) -> Word {
+	auto XmlParser::loadFromTree(const xml::ptree& tree) -> Word {
 		return Word {
 			.id = tree.get<uint64_t>("id", 0),
 			.name = tree.get<std::string>("name", "<no_name>"),
@@ -210,8 +210,8 @@ namespace lynx {
 
 		auto tmpTree = mWordsTree.get_child("words");
 
-		for (const boost::property_tree::ptree::value_type& wordTree : tmpTree) {
-			/*boost::property_tree::write_xml(std::cout, wordTree.second);*/
+		for (const xml::ptree::value_type& wordTree : tmpTree) {
+			/*xml::write_xml(std::cout, wordTree.second);*/
 			result.push_back(loadFromTree(wordTree.second));
 		}
 

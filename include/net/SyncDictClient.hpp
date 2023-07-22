@@ -28,6 +28,8 @@
 
 #include "format/XmlParser.hpp"
 
+namespace net = boost::asio;
+
 namespace lynx {
 
 	class SyncDictClient final {
@@ -49,9 +51,9 @@ namespace lynx {
 		[[nodiscard]] auto performGetAll() -> std::vector<Word>;
 
 	private:
-		boost::asio::io_context mContext;
-		boost::asio::ip::tcp::socket mSocket;
-		boost::asio::ip::tcp::endpoint mEndpoint;
+		net::io_context mContext;
+		net::ip::tcp::socket mSocket;
+		net::ip::tcp::endpoint mEndpoint;
 
 		XmlParser mParser;
 		bool mStarted;

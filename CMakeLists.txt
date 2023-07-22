@@ -23,6 +23,8 @@ set(HEADERS
 	include/common/WordImage.hpp
 	include/common/Word.hpp
 	
+	include/concurrency/ThreadUtils.hpp
+
 	include/db/SyncDictDao.hpp
 
 	include/format/JsonUrlTranslator.hpp
@@ -31,6 +33,9 @@ set(HEADERS
 	include/format/XmlUrlTranslator.hpp
 	include/format/XmlParser.hpp
 	
+	include/http/SyncHttpDictClient.hpp
+	include/http/SyncHttpDictServer.hpp
+
 	include/logging/Logging.hpp
 	
 	include/net/DictCommand.hpp
@@ -39,14 +44,20 @@ set(HEADERS
 	include/net/SyncDictServer.hpp
 
 	include/util/ByteUtils.hpp
+	include/util/StringUtils.hpp
 )
 
 set(SOURCES
+	src/concurrency/ThreadUtils.cpp
+
 	src/db/SyncDictDao.cpp
 
 	src/format/JsonParser.cpp
 	src/format/ProtobufParser.cpp
 	src/format/XmlParser.cpp
+
+	src/http/SyncHttpDictClient.cpp
+	src/http/SyncHttpDictServer.cpp
 
 	src/logging/Logging.cpp
 	
@@ -55,6 +66,7 @@ set(SOURCES
 	src/net/SyncDictServer.cpp
 
 	src/util/ByteUtils.cpp
+	src/util/StringUtils.cpp
 )
 
 if (Protobuf_FOUND)

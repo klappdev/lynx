@@ -24,43 +24,18 @@
 
 #pragma once
 
-#include <boost/property_tree/ptree.hpp>
+#include <thread>
 #include <boost/system/result.hpp>
-
-#include <vector>
-
-#include "common/Word.hpp"
-
-namespace xml = boost::property_tree;
 
 namespace lynx {
 
-	class XmlParser final {
-	public:
-		XmlParser() = default;
-		~XmlParser() = default;
+	boost::system::result<void> setName(const std::string& name);
 
-		auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-		auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
+	boost::system::result<std::string> getName();
 
-		auto serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string>;
-		auto deserializeWordsFromText(const std::string& text) -> boost::system::result<std::vector<Word>>;
+	boost::system::result<void> setPriority(int priority);
 
-		auto serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromFile(const std::string& fileName) -> boost::system::result<Word>;
+	boost::system::result<int> getPriority();
 
-		auto serializeToArchive(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromArchive(const std::string& fileName) -> boost::system::result<Word>;
-
-	private:
-		void saveToTree(const Word& word);
-		auto loadFromTree() -> Word;
-		auto loadFromTree(const xml::ptree& tree) -> Word;
-
-		void saveWordsToTree(const std::vector<Word>& words);
-		auto loadWordsFromTree() -> std::vector<Word>;
-
-		xml::ptree mWordTree;
-		xml::ptree mWordsTree;
-	};
+	boost::system::result<void> raiseSignal(std::thread::native_handle_type threadId, int signalNumber);
 }

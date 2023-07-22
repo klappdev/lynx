@@ -24,43 +24,22 @@
 
 #pragma once
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/system/result.hpp>
-
-#include <vector>
-
-#include "common/Word.hpp"
-
-namespace xml = boost::property_tree;
+#include <string>
+#include <memory>
 
 namespace lynx {
 
-	class XmlParser final {
-	public:
-		XmlParser() = default;
-		~XmlParser() = default;
+    bool contains(const std::string& input, const std::string& substring);
 
-		auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-		auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
+    template<typename... Args>
+    std::string format(const char* formatter, Args... arguments) {
+        int formatterSize = std::sprintf(nullptr, 0, formatter, arguments...) + 1; // extra for '\0'
+        if (formatterSize <= 0) return "";
 
-		auto serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string>;
-		auto deserializeWordsFromText(const std::string& text) -> boost::system::result<std::vector<Word>>;
+        std::size_t size = static_cast<std::size_t>(formatterSize);
+        auto buffer = std::make_unique<char[]>(size);
+        std::snprintf(buffer.get(), size, formatter, arguments...);
 
-		auto serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromFile(const std::string& fileName) -> boost::system::result<Word>;
-
-		auto serializeToArchive(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromArchive(const std::string& fileName) -> boost::system::result<Word>;
-
-	private:
-		void saveToTree(const Word& word);
-		auto loadFromTree() -> Word;
-		auto loadFromTree(const xml::ptree& tree) -> Word;
-
-		void saveWordsToTree(const std::vector<Word>& words);
-		auto loadWordsFromTree() -> std::vector<Word>;
-
-		xml::ptree mWordTree;
-		xml::ptree mWordsTree;
-	};
+        return std::string(buffer.get(), buffer.get() + size - 1); // don't need '\0' inside
+    }
 }

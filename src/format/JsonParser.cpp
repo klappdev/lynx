@@ -50,6 +50,16 @@ namespace lynx {
 	    return boost::json::value_to<Word>(value);
     }
 
+    auto JsonParser::serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string> {
+    	//FIXME: implement in future
+		return {};
+    }
+
+    auto JsonParser::deserializeWordsFromText(const std::string& input) -> boost::system::result<std::vector<Word>> {
+    	//FIXME: implement in future
+    	return {};
+    }
+
     auto JsonParser::serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void> {
     	std::ofstream ofs(fileName, std::ios_base::out);
 

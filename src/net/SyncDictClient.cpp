@@ -37,11 +37,17 @@ static constexpr const char* const TAG = "SyncDictClient";
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 
+/**
+ * #XXX: Show list open ports:
+ * $ lsof -i -P -n | grep LISTEN
+ * $ netstat -an | grep "LISTEN "
+ */
+
 namespace lynx {
 
 	SyncDictClient::SyncDictClient(const std::string& host, uint64_t port)
 		: mSocket(mContext)
-		, mEndpoint(boost::asio::ip::address::from_string(host), port)
+		, mEndpoint(net::ip::address::from_string(host), port)
 		, mStarted(false) {
 		log::info(TAG, "Create client");
 	}
@@ -77,7 +83,7 @@ namespace lynx {
 
 	void SyncDictClient::performQuit() {
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(QUIT_COMMAND + "\n"s), errorCode);
+		net::write(mSocket, net::buffer(QUIT_COMMAND + "\n"s), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message %s successfully", QUIT_COMMAND);
@@ -90,7 +96,7 @@ namespace lynx {
 
 	void SyncDictClient::performInsert(const Word& word) {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
 		boost::system::result<std::string> localData = mParser.serializeToText(word);
 
@@ -99,7 +105,7 @@ namespace lynx {
 			return;
 		}
 
-		boost::asio::write(mSocket, boost::asio::buffer(INSERT_COMMAND + localData.value() + "\n"), errorCode);
+		net::write(mSocket, net::buffer(INSERT_COMMAND + localData.value() + "\n"), errorCode);
 
 		if (errorCode) {
 			log::error(TAG, "Can't send message %s: %s", INSERT_COMMAND, errorCode.message().c_str());
@@ -107,7 +113,7 @@ namespace lynx {
 		}
 
 		errorCode.clear();
-		boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+		net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 		std::string remoteData = toString(remoteBuffer);
 
@@ -120,7 +126,7 @@ namespace lynx {
 
 	void SyncDictClient::performUpdate(const Word& word) {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
 		boost::system::result<std::string> localData = mParser.serializeToText(word);
 
@@ -129,7 +135,7 @@ namespace lynx {
 			return;
 		}
 
-		boost::asio::write(mSocket, boost::asio::buffer(UPDATE_COMMAND + localData.value() + "\n"), errorCode);
+		net::write(mSocket, net::buffer(UPDATE_COMMAND + localData.value() + "\n"), errorCode);
 
 		if (errorCode) {
 			log::error(TAG, "Can't send message %s: %s", UPDATE_COMMAND, errorCode.message().c_str());
@@ -137,7 +143,7 @@ namespace lynx {
 		}
 
 		errorCode.clear();
-		boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+		net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 		std::string remoteData = toString(remoteBuffer);
 
@@ -150,9 +156,9 @@ namespace lynx {
 
 	void SyncDictClient::performDelete(uint64_t id) {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
-		boost::asio::write(mSocket, boost::asio::buffer(DELETE_COMMAND + std::to_string(id) + "\n"), errorCode);
+		net::write(mSocket, net::buffer(DELETE_COMMAND + std::to_string(id) + "\n"), errorCode);
 
 		if (errorCode) {
 			log::error(TAG, "Can't send message %s: %s", DELETE_COMMAND, errorCode.message().c_str());
@@ -160,7 +166,7 @@ namespace lynx {
 		}
 
 		errorCode.clear();
-		boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+		net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 		std::string remoteData = toString(remoteBuffer);
 
@@ -173,9 +179,9 @@ namespace lynx {
 
 	auto SyncDictClient::performGetById(uint64_t id) -> Word {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
-		boost::asio::write(mSocket, boost::asio::buffer(GET_BY_ID_COMMAND + std::to_string(id) + "\n"), errorCode);
+		net::write(mSocket, net::buffer(GET_BY_ID_COMMAND + std::to_string(id) + "\n"), errorCode);
 
 		if (errorCode) {
 			log::error(TAG, "Can't send message %s: %s", GET_BY_ID_COMMAND, errorCode.message().c_str());
@@ -183,7 +189,7 @@ namespace lynx {
 		}
 
 		errorCode.clear();
-		boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+		net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 		std::string remoteData = toString(remoteBuffer);
 
@@ -206,9 +212,9 @@ namespace lynx {
 
 	auto SyncDictClient::performGetAll() -> std::vector<Word> {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
-		boost::asio::write(mSocket, boost::asio::buffer(GET_ALL_COMMAND + "\n"s), errorCode);
+		net::write(mSocket, net::buffer(GET_ALL_COMMAND + "\n"s), errorCode);
 
 		if (errorCode) {
 			log::error(TAG, "Can't send message %s: %s", GET_ALL_COMMAND, errorCode.message().c_str());
@@ -216,7 +222,7 @@ namespace lynx {
 		}
 
 		errorCode.clear();
-		boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+		net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 		std::string remoteData = toString(remoteBuffer);
 

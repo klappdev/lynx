@@ -42,7 +42,7 @@ namespace lynx {
 
 	SyncDictServer::SyncDictServer(const std::string& host, uint64_t port)
 		: mSocket(mContext)
-		, mEndpoint(boost::asio::ip::tcp::v4(), port)
+		, mEndpoint(net::ip::tcp::v4(), port)
 		, mAcceptor(mContext, mEndpoint)
 		, dictDao(host)
 		, mStarted(false) {
@@ -83,10 +83,10 @@ namespace lynx {
 
 	void SyncDictServer::processMessages() {
 		boost::system::error_code errorCode;
-		boost::asio::streambuf remoteBuffer;
+		net::streambuf remoteBuffer;
 
 		while (mStarted) {
-			boost::asio::read_until(mSocket, remoteBuffer, "\n", errorCode);
+			net::read_until(mSocket, remoteBuffer, "\n", errorCode);
 
 			if (errorCode) {
 				log::error(TAG, "Receive data isn't correct: %s", errorCode.message().c_str());
@@ -124,7 +124,7 @@ namespace lynx {
 		boost::system::result<Word> remoteWord = mParser.deserializeFromText(remoteData);
 
 		if (remoteWord.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Deserialize word error"s + "\n"));
+			net::write(mSocket, net::buffer("Deserialize word error"s + "\n"));
 			log::error(TAG, "Deserialize word error: %s", remoteWord.error().message().c_str());
 			return;
 		}
@@ -132,13 +132,13 @@ namespace lynx {
 		boost::system::result<void> operationStatus = dictDao.insert(remoteWord.value());
 
 		if (operationStatus.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Db insert word error"s + "\n"));
+			net::write(mSocket, net::buffer("Db insert word error"s + "\n"));
 			log::error(TAG, "Db insert word error: %s", remoteWord.error().message().c_str());
 			return;
 		}
 
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(INSERT_COMMAND + " processed success"s + "\n"), errorCode);
+		net::write(mSocket, net::buffer(INSERT_COMMAND + " processed success"s + "\n"), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message: %s", INSERT_COMMAND);
@@ -155,7 +155,7 @@ namespace lynx {
 		boost::system::result<Word> remoteWord = mParser.deserializeFromText(remoteData);
 
 		if (remoteWord.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Deserialize word error"s + "\n"));
+			net::write(mSocket, net::buffer("Deserialize word error"s + "\n"));
 			log::error(TAG, "Deserialize word error: %s", remoteWord.error().message().c_str());
 			return;
 		}
@@ -163,13 +163,13 @@ namespace lynx {
 		boost::system::result<void> operationStatus = dictDao.update(remoteWord.value());
 
 		if (operationStatus.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Db update word error"s + "\n"));
+			net::write(mSocket, net::buffer("Db update word error"s + "\n"));
 			log::error(TAG, "Db update word error: %s", remoteWord.error().message().c_str());
 			return;
 		}
 
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(UPDATE_COMMAND + " processed success"s + "\n"), errorCode);
+		net::write(mSocket, net::buffer(UPDATE_COMMAND + " processed success"s + "\n"), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message: %s", UPDATE_COMMAND);
@@ -186,7 +186,7 @@ namespace lynx {
 		auto remoteWordId = std::from_chars(remoteData.data(), remoteData.data() + remoteData.size(), wordId);
 
 		if (remoteWordId.ec != std::errc{}) {
-			boost::asio::write(mSocket, boost::asio::buffer("Parse word id error"s + "\n"));
+			net::write(mSocket, net::buffer("Parse word id error"s + "\n"));
 			log::error(TAG, "Parse word id error: %s", std::make_error_code(remoteWordId.ec).message().c_str());
 			return;
 		}
@@ -194,13 +194,13 @@ namespace lynx {
 		boost::system::result<void> operationStatus = dictDao.remove(wordId);
 
 		if (operationStatus.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Db delete word error"s + "\n"));
+			net::write(mSocket, net::buffer("Db delete word error"s + "\n"));
 			log::error(TAG, "Db delete word error: %s", operationStatus.error().message().c_str());
 			return;
 		}
 
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(DELETE_COMMAND + " processed success"s + "\n"), errorCode);
+		net::write(mSocket, net::buffer(DELETE_COMMAND + " processed success"s + "\n"), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message: %s", DELETE_COMMAND);
@@ -217,7 +217,7 @@ namespace lynx {
 		auto remoteWordId = std::from_chars(remoteData.data(), remoteData.data() + remoteData.size(), wordId);
 
 		if (remoteWordId.ec != std::errc{}) {
-			boost::asio::write(mSocket, boost::asio::buffer("Parse word id error"s + "\n"));
+			net::write(mSocket, net::buffer("Parse word id error"s + "\n"));
 			log::error(TAG, "Parse word id error: %s", std::make_error_code(remoteWordId.ec).message().c_str());
 			return;
 		}
@@ -225,7 +225,7 @@ namespace lynx {
 		boost::system::result<Word> localWord = dictDao.getById(wordId);
 
 		if (localWord.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Db get word by id error"s + "\n"));
+			net::write(mSocket, net::buffer("Db get word by id error"s + "\n"));
 			log::error(TAG, "Db get word by id error: %s", localWord.error().message().c_str());
 			return;
 		}
@@ -233,13 +233,13 @@ namespace lynx {
 		boost::system::result<std::string> localData = mParser.serializeToText(*localWord);
 
 		if (localData.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Serialize word error"s + "\n"));
+			net::write(mSocket, net::buffer("Serialize word error"s + "\n"));
 			log::error(TAG, "Serialize word error: %s", localData.error().message().c_str());
 			return;
 		}
 
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(GET_BY_ID_COMMAND + localData.value() + "\n"), errorCode);
+		net::write(mSocket, net::buffer(GET_BY_ID_COMMAND + localData.value() + "\n"), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message: %s", GET_BY_ID_COMMAND);
@@ -254,7 +254,7 @@ namespace lynx {
 		boost::system::result<std::vector<Word>> localWords = dictDao.getAll();
 
 		if (localWords.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Db get all words error"s + "\n"));
+			net::write(mSocket, net::buffer("Db get all words error"s + "\n"));
 			log::error(TAG, "Db get all words error: %s", localWords.error().message().c_str());
 			return;
 		}
@@ -262,13 +262,13 @@ namespace lynx {
 		boost::system::result<std::string> localData = mParser.serializeWordsToText(*localWords);
 
 		if (localData.has_error()) {
-			boost::asio::write(mSocket, boost::asio::buffer("Serialize words error"s + "\n"));
+			net::write(mSocket, net::buffer("Serialize words error"s + "\n"));
 			log::error(TAG, "Serialize words error: %s", localData.error().message().c_str());
 			return;
 		}
 
 		boost::system::error_code errorCode;
-		boost::asio::write(mSocket, boost::asio::buffer(GET_ALL_COMMAND + localData.value() + "\n"), errorCode);
+		net::write(mSocket, net::buffer(GET_ALL_COMMAND + localData.value() + "\n"), errorCode);
 
 		if (!errorCode) {
 			log::info(TAG, "Send message: %s", GET_ALL_COMMAND);

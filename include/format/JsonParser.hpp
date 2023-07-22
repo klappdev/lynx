@@ -27,6 +27,8 @@
 #include <boost/json.hpp>
 #include <boost/system/result.hpp>
 
+#include <vector>
+
 #include "common/Config.hpp"
 #include "common/Word.hpp"
 
@@ -39,6 +41,9 @@ namespace lynx {
 
 	    auto serializeToText(const Word& word) -> boost::system::result<std::string>;
 	    auto deserializeFromText(const std::string& input) -> boost::system::result<Word>;
+
+	    auto serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string>;
+	    auto deserializeWordsFromText(const std::string& input) -> boost::system::result<std::vector<Word>>;
 
 	    auto serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void>;
 		auto deserializeFromFile(const std::string& fileName) -> boost::system::result<Word>;

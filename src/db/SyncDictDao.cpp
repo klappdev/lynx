@@ -24,7 +24,6 @@
 
 #include "db/SyncDictDao.hpp"
 #include "logging/Logging.hpp"
-#include "util/StringUtils.hpp"
 
 #include <boost/url/parse.hpp>
 
@@ -36,32 +35,32 @@ static constexpr const char* const USER_NAME = "user";
 static constexpr const char* const PASSWORD = "pass";
 
 /**
- * #TODO: Disable from autostart:
+ * #XXX: Disable from autostart:
  * $ systemctl disable mysql
  *
- * #TODO: Start/stop mysql:
+ * #XXX: Start/stop mysql:
  * $ service mysql stop
  * $ service mysql start
  *
- * #TODO Start mysql client:
+ * #XXX Start mysql client:
  * $ mysql -u user -p
  *
- * #TODO Create database:
+ * #XXX Create database:
  * > DROP DATABASE IF EXISTS dictionary;
  * > CREATE DATABASE dictionary;
  *
- * #TODO: Show databases:
+ * #XXX: Show databases:
  * > SHOW DATABASES;
  * > USE dictionary;
  *
- * #TODO: Show tables:
+ * #XXX: Show tables:
  * > SHOW TABLES;
  *
- * #TODO: Show info tables:
+ * #XXX: Show info tables:
  * > DESCRIBE word;
  * > DESCRIBE word_image;
  *
- * #TODO: Show users and tables:
+ * #XXX: Show users and tables:
  * > SELECT user FROM mysql.user;
  * > SELECT * FROM word;
  * > SELECT * FROM word_image;
@@ -104,7 +103,7 @@ namespace lynx {
 		boost::system::error_code errorCode;
 		boost::mysql::diagnostics serverErrorCode;
 
-		boost::asio::ip::tcp::resolver resolver(mContext.get_executor());
+		net::ip::tcp::resolver resolver(mContext.get_executor());
 		auto endpoints = resolver.resolve(mHost, boost::mysql::default_port_string, errorCode);
 
 		if (errorCode) {
@@ -112,10 +111,10 @@ namespace lynx {
 			return;
 		}
 
-		boost::asio::ssl::context sslContext(boost::asio::ssl::context::tls_client);
-		mConnection = std::make_unique<boost::mysql::tcp_ssl_connection>(mContext, sslContext);
+		net::ssl::context sslContext(net::ssl::context::tls_client);
+		mConnection = std::make_unique<db::tcp_ssl_connection>(mContext, sslContext);
 
-		boost::mysql::handshake_params parameters(USER_NAME, PASSWORD, DATABASE_NAME);
+		db::handshake_params parameters(USER_NAME, PASSWORD, DATABASE_NAME);
 		mConnection->connect(*endpoints.begin(), parameters, errorCode, serverErrorCode);
 
 		if (errorCode) {
@@ -134,8 +133,8 @@ namespace lynx {
 
 	void SyncDictDao::createTables() {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
 		mConnection->query(R"xxx(
 			CREATE TABLE IF NOT EXISTS word_image (
@@ -178,8 +177,8 @@ namespace lynx {
 
 	void SyncDictDao::truncateTables() {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
 		mConnection->query("START TRANSACTION", result);
 		mConnection->query("SET FOREIGN_KEY_CHECKS = 0", result);
@@ -210,12 +209,12 @@ namespace lynx {
 
 	auto SyncDictDao::insert(const Word& word) -> boost::system::result<void> {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
 		mConnection->query("START TRANSACTION", result);
 
-		boost::mysql::statement statement = mConnection->prepare_statement(
+		db::statement statement = mConnection->prepare_statement(
 			"INSERT INTO word_image (url, width, height) VALUES (?, ?, ?)"
 		);
 		auto wordImageParameters = std::make_tuple(std::string(word.image.url.c_str()),
@@ -252,12 +251,12 @@ namespace lynx {
 
 	auto SyncDictDao::update(const Word& word) -> boost::system::result<void> {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
 		mConnection->query("START TRANSACTION", result);
 
-		boost::mysql::statement statement = mConnection->prepare_statement(
+		db::statement statement = mConnection->prepare_statement(
 			"UPDATE word_image SET url=?, width=?, height=? WHERE id=?"
 		);
 		auto wordImageParameters = std::make_tuple(std::string(word.image.url.c_str()),
@@ -290,13 +289,13 @@ namespace lynx {
 
 	auto SyncDictDao::remove(uint64_t id) -> boost::system::result<void> {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
 		mConnection->query("START TRANSACTION", result);
 		mConnection->query("SET FOREIGN_KEY_CHECKS = 0", result);
 
-		boost::mysql::statement statement = mConnection->prepare_statement(
+		db::statement statement = mConnection->prepare_statement(
 			"DELETE FROM word_image WHERE id IN (SELECT id_image FROM word WHERE id=?)"
 		);
 		mConnection->execute_statement(statement, std::make_tuple(id), result, errorCode, serverErrorCode);
@@ -324,7 +323,7 @@ namespace lynx {
 		return {};
 	}
 
-	auto SyncDictDao::load(const boost::mysql::row& row) -> boost::system::result<Word, std::string> {
+	auto SyncDictDao::load(const db::row& row) -> boost::system::result<Word, std::string> {
 		Word word;
 
 		if (row.at(0).is_int64()) {
@@ -389,10 +388,10 @@ namespace lynx {
 
 	auto SyncDictDao::getById(uint64_t id) -> boost::system::result<Word> {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 
-		boost::mysql::statement statement = mConnection->prepare_statement(R"xxx(
+		db::statement statement = mConnection->prepare_statement(R"xxx(
 			SELECT word.id AS word_id, word.name, word.`index`, word.type,
 				   word_image.id AS word_image_id, word_image.url,
                    word_image.width, word_image.height
@@ -408,10 +407,10 @@ namespace lynx {
 			return errorCode;
 		} else if (result.rows().empty()) {
 			log::error(TAG, "Can't find word with id=%zu", id);
-			return boost::mysql::make_error_code(boost::mysql::common_server_errc::er_wrong_value_count);
+			return db::make_error_code(db::common_server_errc::er_wrong_value_count);
 		}
 
-		boost::mysql::row firstRow = result.rows().at(0);
+		db::row firstRow = result.rows().at(0);
 		boost::system::result<Word, std::string> word = load(firstRow);
 
 		if (word.has_value()) {
@@ -424,8 +423,8 @@ namespace lynx {
 
 	auto SyncDictDao::getAll() -> boost::system::result<std::vector<Word>> {
 		boost::system::error_code errorCode;
-		boost::mysql::diagnostics serverErrorCode;
-		boost::mysql::results result;
+		db::diagnostics serverErrorCode;
+		db::results result;
 		std::vector<Word> words;
 
 		mConnection->query(R"xxx(
@@ -443,11 +442,11 @@ namespace lynx {
 			return errorCode;
 		} else if (result.rows().empty()) {
 			log::error(TAG, "Can't find all words");
-			return boost::mysql::make_error_code(boost::mysql::common_server_errc::er_wrong_value_count);
+			return db::make_error_code(db::common_server_errc::er_wrong_value_count);
 		}
 
-		const boost::mysql::rows_view rows = result.rows();
-		for (boost::mysql::row_view row : rows) {
+		const db::rows_view rows = result.rows();
+		for (db::row_view row : rows) {
 			boost::system::result<Word, std::string> word = load(row);
 
 			if (word.has_value()) {

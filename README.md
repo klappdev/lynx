@@ -7,6 +7,7 @@ Useful samples of using important and popular libraries in the C++ world.
 - `net`    - synchronous/asynchronous network clients, servers ([`boost.asio`](https://github.com/boostorg/asio)).
 - `db`     - synchronous/asynchronous database clients ([`boost.mysql`](https://github.com/boostorg/mysql)).
 - `http`   - synchronous/asynchronous http clients, servers ([`boost.beast`](https://github.com/boostorg/beast)).
+- `rpc`    - synchronous/asynchronous rpc clients, servers ([`grpc`](https://grpc.io/docs/languages/cpp/basics)).
 
 ## Building
 Perform the following actions for building project:

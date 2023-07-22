@@ -25,48 +25,53 @@
 #pragma once
 
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/ssl/context.hpp>
-#include <boost/mysql.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
 
-#include "common/Word.hpp"
+#include "db/SyncDictDao.hpp"
+#include "format/JsonParser.hpp"
 
+namespace beast = boost::beast;
 namespace net = boost::asio;
-namespace db = boost::mysql;
+namespace http = beast::http;
 
 namespace lynx {
 
-	class SyncDictDao final {
+	class SyncHttpDictServer final {
 	public:
-		SyncDictDao(const std::string& host);
-		~SyncDictDao();
+		SyncHttpDictServer(const std::string& host , uint16_t port);
+		~SyncHttpDictServer();
 
 		[[nodiscard]] bool isStarted() const;
 
 		void start();
 		void stop();
 
-		auto insert(const Word& word) -> boost::system::result<void>;
-		auto update(const Word& word) -> boost::system::result<void>;
-		auto remove(uint64_t id) -> boost::system::result<void>;
+	private:
+		void startSignalHandler();
+		void processSession(net::ip::tcp::socket& socket);
 
-		auto getById(uint64_t id) -> boost::system::result<Word>;
-		auto getAll() -> boost::system::result<std::vector<Word>>;
+		auto handlePostRequest(http::request<http::string_body>&& request) -> std::unique_ptr<http::message_generator>;
+		auto handlePutRequest(http::request<http::string_body>&& request) -> std::unique_ptr<http::message_generator>;
+		auto handleDeleteRequest(http::request<http::string_body>&& request) -> std::unique_ptr<http::message_generator>;
+		auto handleGetByIdRequest(http::request<http::string_body>&& request) -> std::unique_ptr<http::message_generator>;
+		auto handleGetAllRequest(http::request<http::string_body>&& request) -> std::unique_ptr<http::message_generator>;
 
-		[[nodiscard]] auto getLastWordId() const -> uint64_t;
-		[[nodiscard]] auto getLastWordImageId() const -> uint64_t;
-
-		void truncateTables();
+		auto prepareResponse(const std::string& body, http::status status, uint32_t version, bool keepAlive)
+			-> http::response<http::string_body>;
+		[[nodiscard]] bool checkTarget(boost::core::string_view target) const;
 
 	private:
-		void createTables();
-		auto load(const db::row& row) -> boost::system::result<Word, std::string>;
-
 		std::string mHost;
-		net::io_context mContext;
-		std::unique_ptr<db::tcp_ssl_connection> mConnection;
+		uint16_t mPort;
 
-		uint64_t mLastWordId;
-		uint64_t mLastWordImageId;
-		bool mStarted;
+		net::io_context mContext;
+		net::ip::tcp::acceptor mAcceptor;
+		net::signal_set mSignals;
+
+		SyncDictDao mDictDao;
+		JsonParser mParser;
+		std::atomic_bool mStarted;
 	};
 }

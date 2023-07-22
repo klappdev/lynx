@@ -24,43 +24,47 @@
 
 #pragma once
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/system/result.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
 
-#include <vector>
+#include "format/JsonParser.hpp"
 
-#include "common/Word.hpp"
-
-namespace xml = boost::property_tree;
+namespace beast = boost::beast;
+namespace net = boost::asio;
+namespace http = beast::http;
 
 namespace lynx {
 
-	class XmlParser final {
+	class SyncHttpDictClient final {
 	public:
-		XmlParser() = default;
-		~XmlParser() = default;
+		SyncHttpDictClient(const std::string& host, uint16_t port);
+		~SyncHttpDictClient();
 
-		auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-		auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
+		[[nodiscard]] bool isStarted() const;
 
-		auto serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string>;
-		auto deserializeWordsFromText(const std::string& text) -> boost::system::result<std::vector<Word>>;
+		void start();
+		void stop();
 
-		auto serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromFile(const std::string& fileName) -> boost::system::result<Word>;
+		void performPost(const Word& word);
+		void performPut(const Word& word);
+		void performDelete(uint64_t id);
 
-		auto serializeToArchive(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromArchive(const std::string& fileName) -> boost::system::result<Word>;
+		[[nodiscard]] auto performGet(uint64_t id) -> Word;
+		[[nodiscard]] auto performGet() -> std::vector<Word>;
 
 	private:
-		void saveToTree(const Word& word);
-		auto loadFromTree() -> Word;
-		auto loadFromTree(const xml::ptree& tree) -> Word;
+		auto prepareRequest(http::verb method, const std::string& target = "", const std::string& body = "")
+			-> http::request<http::string_body>;
 
-		void saveWordsToTree(const std::vector<Word>& words);
-		auto loadWordsFromTree() -> std::vector<Word>;
+	private:
+		std::string mHost;
+		uint16_t mPort;
 
-		xml::ptree mWordTree;
-		xml::ptree mWordsTree;
+		net::io_context mContext;
+		beast::tcp_stream mStream;
+
+		JsonParser mParser;
+		bool mStarted;
 	};
 }

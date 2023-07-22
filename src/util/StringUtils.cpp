@@ -22,45 +22,15 @@
  * SOFTWARE.
  */
 
-#pragma once
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/system/result.hpp>
-
-#include <vector>
-
-#include "common/Word.hpp"
-
-namespace xml = boost::property_tree;
+#include "util/StringUtils.hpp"
 
 namespace lynx {
 
-	class XmlParser final {
-	public:
-		XmlParser() = default;
-		~XmlParser() = default;
-
-		auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-		auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
-
-		auto serializeWordsToText(const std::vector<Word>& words) -> boost::system::result<std::string>;
-		auto deserializeWordsFromText(const std::string& text) -> boost::system::result<std::vector<Word>>;
-
-		auto serializeToFile(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromFile(const std::string& fileName) -> boost::system::result<Word>;
-
-		auto serializeToArchive(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-		auto deserializeFromArchive(const std::string& fileName) -> boost::system::result<Word>;
-
-	private:
-		void saveToTree(const Word& word);
-		auto loadFromTree() -> Word;
-		auto loadFromTree(const xml::ptree& tree) -> Word;
-
-		void saveWordsToTree(const std::vector<Word>& words);
-		auto loadWordsFromTree() -> std::vector<Word>;
-
-		xml::ptree mWordTree;
-		xml::ptree mWordsTree;
-	};
+	bool contains(const std::string& input, const std::string& substring) {
+        return input.find(substring) != std::string::npos;
+    }
 }
+
+
+
+

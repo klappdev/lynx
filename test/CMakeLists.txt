@@ -12,6 +12,7 @@ add_executable(lynx_test
 	format/XmlParserTest.cpp
 
 	net/SyncDictClientServerTest.cpp
+	http/SyncHttpDictClientServerTest.cpp
 )
 
 target_include_directories(lynx_test
