@@ -10,15 +10,16 @@ message(STATUS "C++ flags, release configuration: ${CMAKE_CXX_FLAGS_RELEASE}")
 
 message("~~~ Conan setup ~~~")
 include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
-include(${CMAKE_BINARY_DIR}/protobuf-config.cmake)
 
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(gRPC REQUIRED)
 
 set(HEADERS
 	include/common/Config.hpp
+	include/common/DictCommand.hpp
 	include/common/WordType.hpp
 	include/common/WordImage.hpp
 	include/common/Word.hpp
@@ -38,10 +39,12 @@ set(HEADERS
 
 	include/logging/Logging.hpp
 	
-	include/net/DictCommand.hpp
 	include/net/NetworkUtils.hpp
 	include/net/SyncDictClient.hpp
 	include/net/SyncDictServer.hpp
+
+	include/rpc/SyncRpcDictClient.hpp
+	include/rpc/SyncRpcDictServer.hpp
 
 	include/util/ByteUtils.hpp
 	include/util/StringUtils.hpp
@@ -65,22 +68,28 @@ set(SOURCES
 	src/net/SyncDictClient.cpp
 	src/net/SyncDictServer.cpp
 
+	src/rpc/SyncRpcDictClient.cpp
+	src/rpc/SyncRpcDictServer.cpp
+
 	src/util/ByteUtils.cpp
 	src/util/StringUtils.cpp
 )
 
-if (Protobuf_FOUND)
-	protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS proto/RemoteWord.proto)
-endif()
+set(PROTO_SOURCES
+    proto/RemoteWord.proto
+    proto/RemoteDictService.proto
+)
 
 add_library(lynx SHARED
 	${HEADERS} ${SOURCES}
-	${PROTO_HDRS} ${PROTO_SRCS}
+	${PROTO_SOURCES}
 )
 
 target_include_directories(lynx PUBLIC
 	${Boost_INCLUDE_DIRS}
 	${protobuf_INCLUDE_DIRS}
+	${gRPC_INCLUDE_DIRS}
+	${absl_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -93,8 +102,12 @@ target_link_libraries(lynx
 	OpenSSL::Crypto
 	OpenSSL::SSL
 	protobuf::protobuf
+	gRPC::grpc++
 )
 
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(TARGET lynx LANGUAGE cpp)
+protobuf_generate(TARGET lynx LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
 
 message("~~~ Conan libs: ${CONAN_LIBS}")
 

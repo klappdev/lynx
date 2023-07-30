@@ -23,8 +23,8 @@
  */
 
 #include "net/SyncDictClient.hpp"
-#include "net/DictCommand.hpp"
 #include "net/NetworkUtils.hpp"
+#include "common/DictCommand.hpp"
 #include "logging/Logging.hpp"
 
 #include <thread>

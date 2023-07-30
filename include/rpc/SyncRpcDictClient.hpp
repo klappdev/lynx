@@ -24,36 +24,37 @@
 
 #pragma once
 
-#include <vector>
-#include <boost/system/result.hpp>
-
-#include "common/Word.hpp"
-#include "proto/RemoteWord.pb.h"
+#include "format/ProtobufParser.hpp"
+#include "proto/RemoteDictService.pb.h"
+#include "proto/RemoteDictService.grpc.pb.h"
 
 namespace lynx {
 
-    class ProtobufParser final {
-    public:     
-	    ProtobufParser();
-	    ~ProtobufParser();
+	class SyncRpcDictClient final {
+	public:
+		SyncRpcDictClient(const std::string& host, uint16_t port);
+		~SyncRpcDictClient();
 
-	    auto serializeToBinary(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-	    auto deserializeFromBinary(const std::string& fileName) -> boost::system::result<Word>;
+		[[nodiscard]] bool isStarted() const;
 
-	    auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-	    auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
+		void start();
+		void stop();
 
-	    auto serializeToBuffer(const Word& word) -> boost::system::result<std::vector<std::byte>>;
-	    auto deserializeFromBuffer(const std::vector<std::byte>& buffer) -> boost::system::result<Word>;
-        
-	    auto convert(const Word& word) -> pb::RemoteWord;
-	    auto convert(const pb::RemoteWord& word) -> Word;
+		void performQuit();
+		void performInsert(const Word& word);
+		void performUpdate(const Word& word);
+		void performDelete(uint64_t id);
 
-    private:
-	    auto convert(WordType wordType) -> pb::RemoteWordType;
-	    auto convert(const WordImage& wordImage) -> pb::RemoteWordImage;
+		[[nodiscard]] auto performGetById(uint64_t id) -> Word;
+		[[nodiscard]] auto performGetAll() -> std::vector<Word>;
 
-	    auto convert(pb::RemoteWordType wordType) -> WordType;
-	    auto convert(const pb::RemoteWordImage& wordImage) -> WordImage;
-    };
+	private:
+		std::string mHost;
+		uint16_t mPort;
+
+		std::unique_ptr<rpc::RemoteDictService::Stub> mService;
+
+		ProtobufParser mParser;
+		std::atomic_bool mStarted;
+	};
 }

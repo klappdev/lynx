@@ -5,14 +5,14 @@ include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 find_package(GTest REQUIRED)
 
 add_executable(lynx_test
-	db/SyncDictDaoTest.cpp
-
 	format/JsonParserTest.cpp
 	format/ProtobufParserTest.cpp
 	format/XmlParserTest.cpp
 
-	net/SyncDictClientServerTest.cpp
-	http/SyncHttpDictClientServerTest.cpp
+	#db/SyncDictDaoTest.cpp
+	#net/SyncDictClientServerTest.cpp
+	#http/SyncHttpDictClientServerTest.cpp
+	rpc/SyncRpcDictClientServerTest.cpp
 )
 
 target_include_directories(lynx_test

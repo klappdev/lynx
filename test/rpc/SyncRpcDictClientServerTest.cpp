@@ -25,28 +25,29 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "http/SyncHttpDictClient.hpp"
-#include "http/SyncHttpDictServer.hpp"
+#include "rpc/SyncRpcDictClient.hpp"
+#include "rpc/SyncRpcDictServer.hpp"
 
 #include "logging/Logging.hpp"
 #include "common/TestData.hpp"
 #include "concurrency/ThreadUtils.hpp"
 
-static constexpr const char* const TAG = "SyncHttpDictClientServerTest";
-static constexpr const char* const HOST_TEST = "127.0.0.1";
-static constexpr uint16_t PORT_TEST = 8002;
+static constexpr const char* const TAG = "SyncRpcDictClientServerTest";
+static constexpr const char* const CLIENT_HOST_TEST = "127.0.0.1";
+static constexpr const char* const SERVER_HOST_TEST = "0.0.0.0";
+static constexpr uint16_t PORT_TEST = 50051;
 
 using namespace std::chrono_literals;
 
 namespace lynx {
 
-	class SyncHttpDictClientServerTest : public testing::Test {
+	class SyncRpcDictClientServerTest : public testing::Test {
 	public:
-		SyncHttpDictClientServerTest()
-			: mClient(HOST_TEST, PORT_TEST) {
+		SyncRpcDictClientServerTest()
+			: mClient(CLIENT_HOST_TEST, PORT_TEST) {
 
 			mServerThread = std::make_unique<std::thread>(std::thread([]() {
-				SyncHttpDictServer server(HOST_TEST, PORT_TEST);
+				SyncRpcDictServer server(SERVER_HOST_TEST, PORT_TEST);
 				server.start();
 				EXPECT_TRUE(server.isStarted());
 				server.stop();
@@ -55,7 +56,7 @@ namespace lynx {
 			mClient.start();
 		}
 
-		~SyncHttpDictClientServerTest() {
+		~SyncRpcDictClientServerTest() {
 			mClient.stop();
 			mServerThread->join();
 		}
@@ -67,22 +68,22 @@ namespace lynx {
 		void remoteGetAllWordsTest();
 
 	protected:
-		SyncHttpDictClient mClient;
+		SyncRpcDictClient mClient;
 
 		std::unique_ptr<std::thread> mServerThread;
 	};
 
-	TEST(SyncHttpDictClientServerTest_0, truncateTablesTest)
+	TEST(SyncRpcDictClientServerTest_0, truncateTableTest)
 	{
-		SyncDictDao dao(HOST_TEST);
+		SyncDictDao dao(CLIENT_HOST_TEST);
 		dao.start();
 		dao.truncateTables();
 		dao.stop();
 	}
 
-	TEST_F(SyncHttpDictClientServerTest, runAllTests)
+	TEST_F(SyncRpcDictClientServerTest, runAllTests)
 	{
-		log::debug(TAG, "Wait while http server is configured");
+		log::debug(TAG, "Wait while rpc server is configured");
 		std::this_thread::sleep_for(1s);
 
 		remoteInsertWordTest();
@@ -91,41 +92,44 @@ namespace lynx {
 		remoteGetByIdWordTest();
 		remoteGetAllWordsTest();
 
+		mClient.performQuit();
+
 		boost::system::result<void> result = raiseSignal(mServerThread->native_handle(), SIGINT);
 		if (result.has_error()) {
-			log::error(TAG, "Can't send signal to http server thread: %s", result.error().message().c_str());
+			log::error(TAG, "Can't send signal to rpc server thread: %s", result.error().message().c_str());
 		}
 	}
 
-	void SyncHttpDictClientServerTest::remoteInsertWordTest() {
+	void SyncRpcDictClientServerTest::remoteInsertWordTest() {
 		log::debug(TAG, "Wait while rpc server is configured");
 		std::this_thread::sleep_for(1s);
 
 		EXPECT_TRUE(mClient.isStarted());
 
-		mClient.performPost(WORD_TEST1);
+		mClient.performInsert(WORD_TEST1);
+
 	}
 
-	void SyncHttpDictClientServerTest::remoteUpdateWordTest() {
+	void SyncRpcDictClientServerTest::remoteUpdateWordTest() {
 		EXPECT_TRUE(mClient.isStarted());
 
 		auto copyWord = WORD_TEST2;
 		copyWord.id = WORD_TEST1.id;
 		copyWord.image.id = WORD_TEST1.image.id;
-		mClient.performPut(copyWord);
+		mClient.performUpdate(copyWord);
 	}
 
-	void SyncHttpDictClientServerTest::remoteDeleteWordTest() {
+	void SyncRpcDictClientServerTest::remoteDeleteWordTest() {
 		EXPECT_TRUE(mClient.isStarted());
 
 		mClient.performDelete(WORD_TEST1.id);
 	}
 
-	void SyncHttpDictClientServerTest::remoteGetByIdWordTest() {
+	void SyncRpcDictClientServerTest::remoteGetByIdWordTest() {
 		EXPECT_TRUE(mClient.isStarted());
 
-		mClient.performPut(WORD_TEST1);
-		Word result = mClient.performGet(WORD_TEST2.id);
+		mClient.performInsert(WORD_TEST1);
+		Word result = mClient.performGetById(WORD_TEST2.id);
 
 		EXPECT_EQ(result.name, WORD_TEST1.name);
 		EXPECT_EQ(result.index, WORD_TEST1.index);
@@ -135,15 +139,13 @@ namespace lynx {
 		EXPECT_EQ(result.image.height, WORD_TEST1.image.height);
 	}
 
-
-	void SyncHttpDictClientServerTest::remoteGetAllWordsTest() {
-#if 0 /*turn-off - implement internal functions*/
+	void SyncRpcDictClientServerTest::remoteGetAllWordsTest() {
 		const Word WORDS_TEST[] = { WORD_TEST1, WORD_TEST2 };
 
 		EXPECT_TRUE(mClient.isStarted());
 
-		mClient.performPut(WORD_TEST2);
-		std::vector<Word> result = mClient.performGet();
+		mClient.performInsert(WORD_TEST2);
+		std::vector<Word> result = mClient.performGetAll();
 
 		for (size_t i = 0; i < std::size(WORDS_TEST); ++i) {
 			EXPECT_EQ(result[i].name, WORDS_TEST[i].name);
@@ -153,6 +155,5 @@ namespace lynx {
 			EXPECT_EQ(result[i].image.width, WORDS_TEST[i].image.width);
 			EXPECT_EQ(result[i].image.height, WORDS_TEST[i].image.height);
 		}
-#endif
 	}
 }

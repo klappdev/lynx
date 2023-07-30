@@ -22,38 +22,34 @@
  * SOFTWARE.
  */
 
-#pragma once
+syntax = "proto3";
 
-#include <vector>
-#include <boost/system/result.hpp>
+package lynx.rpc;
 
-#include "common/Word.hpp"
-#include "proto/RemoteWord.pb.h"
+import "google/protobuf/empty.proto";
+import "proto/RemoteWord.proto";
 
-namespace lynx {
-
-    class ProtobufParser final {
-    public:     
-	    ProtobufParser();
-	    ~ProtobufParser();
-
-	    auto serializeToBinary(const std::string& fileName, const Word& word) -> boost::system::result<void>;
-	    auto deserializeFromBinary(const std::string& fileName) -> boost::system::result<Word>;
-
-	    auto serializeToText(const Word& word) -> boost::system::result<std::string>;
-	    auto deserializeFromText(const std::string& text) -> boost::system::result<Word>;
-
-	    auto serializeToBuffer(const Word& word) -> boost::system::result<std::vector<std::byte>>;
-	    auto deserializeFromBuffer(const std::vector<std::byte>& buffer) -> boost::system::result<Word>;
-        
-	    auto convert(const Word& word) -> pb::RemoteWord;
-	    auto convert(const pb::RemoteWord& word) -> Word;
-
-    private:
-	    auto convert(WordType wordType) -> pb::RemoteWordType;
-	    auto convert(const WordImage& wordImage) -> pb::RemoteWordImage;
-
-	    auto convert(pb::RemoteWordType wordType) -> WordType;
-	    auto convert(const pb::RemoteWordImage& wordImage) -> WordImage;
-    };
+message WordIdRequest {
+	uint64 id = 1;
 }
+
+message ListWordsResponse {
+	repeated pb.RemoteWord words = 1;
+}
+
+service RemoteDictService {
+
+	rpc InsertWord(pb.RemoteWord) returns (google.protobuf.Empty) {}
+
+	rpc UpdateWord(pb.RemoteWord) returns (google.protobuf.Empty) {}
+
+	rpc DeleteWord(WordIdRequest) returns (google.protobuf.Empty) {}
+
+	rpc GetByIdWord(WordIdRequest) returns (pb.RemoteWord) {}
+
+	rpc GetAllWords(google.protobuf.Empty) returns (ListWordsResponse) {}
+
+	rpc Quit(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+
