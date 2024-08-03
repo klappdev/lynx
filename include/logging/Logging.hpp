@@ -24,6 +24,8 @@
 #pragma once
 
 #include <string>
+#include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 namespace lynx::log {
 

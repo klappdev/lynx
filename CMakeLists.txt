@@ -11,6 +11,8 @@ message(STATUS "C++ flags, release configuration: ${CMAKE_CXX_FLAGS_RELEASE}")
 message("~~~ Conan setup ~~~")
 include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
 
+find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -90,12 +92,16 @@ target_include_directories(lynx PUBLIC
 	${protobuf_INCLUDE_DIRS}
 	${gRPC_INCLUDE_DIRS}
 	${absl_INCLUDE_DIRS}
+        ${fmt_INCLUDE_DIRS}
+        ${spdlog_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(lynx
 	PRIVATE
+        fmt::fmt
+        spdlog::spdlog
 	boost::boost
 	Boost::headers
 	Threads::Threads

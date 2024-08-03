@@ -1,9 +1,11 @@
 [requires]
-gtest/1.13.0
-boost/1.82.0
-openssl/3.1.1
-protobuf/3.21.9
-grpc/1.50.1
+fmt/10.2.1
+spdlog/1.14.1
+gtest/1.14.0
+boost/1.85.0
+openssl/3.2.2
+protobuf/3.21.12
+grpc/1.54.3
 
 [generators]
 CMakeDeps

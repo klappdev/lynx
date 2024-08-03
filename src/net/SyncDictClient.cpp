@@ -1,7 +1,7 @@
 /*
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * SPDX-License-Identifier: MIT
- * Copyright (c) 2022-2023 https://github.com/klappdev
+ * Copyright (c) 2022-2024 https://github.com/klappdev
  *
  * Permission is hereby  granted, free of charge, to any  person obtaining a copy
  * of this software and associated  documentation files (the "Software"), to deal
@@ -36,12 +36,6 @@ static constexpr const char* const TAG = "SyncDictClient";
 
 using namespace std::string_literals;
 using namespace std::chrono_literals;
-
-/**
- * #XXX: Show list open ports:
- * $ lsof -i -P -n | grep LISTEN
- * $ netstat -an | grep "LISTEN "
- */
 
 namespace lynx {
 

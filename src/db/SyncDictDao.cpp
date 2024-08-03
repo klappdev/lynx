@@ -1,7 +1,7 @@
 /*
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
  * SPDX-License-Identifier: MIT
- * Copyright (c) 2022-2023 https://github.com/klappdev
+ * Copyright (c) 2022-2024 https://github.com/klappdev
  *
  * Permission is hereby  granted, free of charge, to any  person obtaining a copy
  * of this software and associated  documentation files (the "Software"), to deal
@@ -33,38 +33,6 @@ static constexpr const char* const WORD_TABLE_NAME = "word";
 static constexpr const char* const WORD_IMAGE_TABLE_NAME = "word_image";
 static constexpr const char* const USER_NAME = "user";
 static constexpr const char* const PASSWORD = "pass";
-
-/**
- * #XXX: Disable from autostart:
- * $ systemctl disable mysql
- *
- * #XXX: Start/stop mysql:
- * $ service mysql stop
- * $ service mysql start
- *
- * #XXX Start mysql client:
- * $ mysql -u user -p
- *
- * #XXX Create database:
- * > DROP DATABASE IF EXISTS dictionary;
- * > CREATE DATABASE dictionary;
- *
- * #XXX: Show databases:
- * > SHOW DATABASES;
- * > USE dictionary;
- *
- * #XXX: Show tables:
- * > SHOW TABLES;
- *
- * #XXX: Show info tables:
- * > DESCRIBE word;
- * > DESCRIBE word_image;
- *
- * #XXX: Show users and tables:
- * > SELECT user FROM mysql.user;
- * > SELECT * FROM word;
- * > SELECT * FROM word_image;
- */
 
 namespace lynx {
 
